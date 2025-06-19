@@ -1,0 +1,35 @@
+User Story:
+Title: Scraping Employee Data from Google Drive File
+
+As a developer,
+I want to scrape employee data from the provided Google Drive file URL (https://drive.google.com/uc?id=1AWPf-pJodJKeHsARQK_RHiNsE8fjPCVK&export=download),
+so that I can ingest the data into our data warehouse for further analysis.
+
+Acceptance Criteria:
+File Download:
+
+The scraper must initiate a successful download of the file from the provided Google Drive URL.
+The URL must return a valid file (e.g., CSV, Excel, or other supported formats).
+Data Structure Validation:
+
+Once the file is downloaded, the scraper must correctly identify the file type (CSV, Excel, etc.).
+The scraper should parse the file into the correct format (e.g., CSV rows, Excel sheet).
+The employee data should be mapped to fields like:
+Employee ID
+First Name
+Last Name
+Email
+Job Title
+Phone Number
+Hire Date
+Error Handling:
+
+If the URL is inaccessible or the file download fails, the scraper should log the error and retry the process a limited number of times before sending a failure notification.
+If the file format is invalid or unexpected, the scraper should notify the user with the error message and log the issue.
+
+Test Cases:
+Test Case 1: Verify CSV File Download
+Test Case 2: Verify CSV File Extraction
+Test Case 3: Validate File Type and Format
+Test Case 4: Validate Data Structure
+Test Case 5: Handle Missing or Invalid Data
