@@ -6,13 +6,22 @@ import pandas as pd
 from employee_scraper import EnhancedGoogleDriveEmployeeScraper
 
 class TestEmployeeScraper(unittest.TestCase):
+    """
+    Unit tests for EnhancedGoogleDriveEmployeeScraper.
+    Covers downloading, parsing, detecting formats, and validating employee records.
+    """
 
     def setUp(self):
+        # Initialize scraper instance before each test
         self.scraper = EnhancedGoogleDriveEmployeeScraper()
 
     @patch('employee_scraper.requests.Session.get')
     def test_file_download(self, mock_get):
-        # Test Case 1: Verify CSV File Download
+        """
+        Test Case 1: Ensure that a mock CSV file can be successfully downloaded
+        and that expected headers are returned.
+        """
+        # Simulate a mock response from requests.get
         mock_response = MagicMock()
         mock_response.iter_content = lambda chunk_size: [b"id,name\n1,Alice\n2,Bob"]
         mock_response.headers = {
@@ -23,26 +32,39 @@ class TestEmployeeScraper(unittest.TestCase):
         mock_response.raise_for_status = lambda: None
         mock_get.return_value = mock_response
 
+        # Run method and assert results
         content, headers = self.scraper.download_file_with_retry("https://fake-url.com/test.csv")
-        self.assertTrue(len(content) > 0)
-        self.assertIn('content_type', headers)
+        self.assertTrue(len(content) > 0)  # Check if content was downloaded
+        self.assertIn('content_type', headers)  # Check if headers contain expected keys
 
     def test_parse_csv_extraction(self):
-        # Test Case 2: Verify CSV File Extraction
+        """
+        Test Case 2: Validate that CSV content is parsed correctly into records.
+        """
+        # Prepare CSV byte content
         content = b"employee_id,first_name,last_name,email,job_title,phone_number,birth_date\n1,Alice,Smith,alice@example.com,Engineer,1234567890,1990-05-10"
+        
+        # Parse CSV data
         records = self.scraper.parse_csv_data(content)
+
+        # Assertions
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0]['first_name'], 'Alice')
+        self.assertEqual(records[0]['first_name'], 'Alice')  # Check expected value
 
     def test_file_type_detection(self):
-        # Test Case 3: Validate File Type and Format
+        """
+        Test Case 3: Ensure the scraper can detect 'csv' type correctly based on headers.
+        """
         content = b"employee_id,first_name,last_name\n1,Alice,Smith"
         headers = {'content-type': 'text/csv'}
         file_type = self.scraper.detect_file_type(content, headers)
         self.assertEqual(file_type, 'csv')
 
     def test_data_structure_validation(self):
-        # Test Case 4: Validate Data Structure
+        """
+        Test Case 4: Validate a correctly structured employee record
+        goes into the 'valid' category.
+        """
         raw_data = [{
             'employee_id': '1',
             'first_name': 'Alice',
@@ -52,25 +74,34 @@ class TestEmployeeScraper(unittest.TestCase):
             'phone_number': '1234567890',
             'birth_date': '1990-05-10'
         }]
+
+        # Normalize field names
         mapped_data = self.scraper.map_employee_fields(raw_data)
+        # Validate structure
         validation_result = self.scraper.validate_employee_data(mapped_data)
+
         self.assertEqual(len(validation_result['valid']), 1)
 
     def test_invalid_data_handling(self):
-        # Test Case 5: Handle Missing or Invalid Data
+        """
+        Test Case 5: Validate that clearly malformed data is caught and reported.
+        """
         raw_data = [{
             'first_name': '',
             'last_name': '',
             'email': 'invalid-email',
             'job_title': 'Engineer',
-            'phone_number': 'abc',
+            'phone_number': 'abc',  # Invalid phone number
             'birth_date': '32/13/2020'  # Invalid date
         }]
+
+        # Normalize and validate
         mapped_data = self.scraper.map_employee_fields(raw_data)
         validation_result = self.scraper.validate_employee_data(mapped_data)
+
         self.assertEqual(len(validation_result['invalid']), 1)
         self.assertIn('Invalid email format', validation_result['invalid'][0]['issues'])
 
-
+# Entry point for running the tests
 if __name__ == '__main__':
     unittest.main()

@@ -1,3 +1,7 @@
+# This script defines a powerful employee data scraper that can handle large CSV/Excel files 
+# from Google Drive URLs. It includes robust logging, retry logic, file format detection, field mapping,
+# validation, and exports clean employee records with preserved phone number formats.
+
 import requests
 import pandas as pd
 import csv
@@ -8,10 +12,10 @@ import re
 from datetime import datetime, date
 from typing import Dict, List, Optional, Tuple, Any
 from pathlib import Path
-import openpyxl
-from openpyxl import load_workbook
-import phonenumbers
-from phonenumbers import NumberParseException
+# import openpyxl
+# from openpyxl import load_workbook
+# import phonenumbers
+# from phonenumbers import NumberParseException
 
 class EnhancedGoogleDriveEmployeeScraper:
     """
