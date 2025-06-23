@@ -1,4 +1,4 @@
-# Enhanced Google Drive Employee Scraper Documentation
+# Employee Scraper Documentation
 
 ## Overview
 
